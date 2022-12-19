@@ -1,0 +1,31 @@
+
+entity Cliente {
+	name String required,
+    foto ImageBlob,
+    dataNascimento LocalDate, 
+	possuiBeneficioAtivo Boolean,
+    rendaBruta BigDecimal
+}
+
+entity Tag {
+	nome String required
+}
+
+entity ResponsavelLegal {
+	nome String required
+}
+
+relationship ManyToMany {
+	Cliente{tags(nome)} to Tag{clientes}
+}
+
+relationship ManyToOne {
+	Cliente{responsavelLegal(nome)} to ResponsavelLegal
+}
+
+paginate * with pagination
+dto * with mapstruct
+//conversao de dto pra entidade
+service all with serviceImpl
+filter * 
+//filtrar as entidades
