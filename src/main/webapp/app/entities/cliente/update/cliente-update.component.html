@@ -1,0 +1,166 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2
+        id="jhi-cliente-heading"
+        data-cy="ClienteCreateUpdateHeading"
+        jhiTranslate="clientetagdevsapplicationApp.cliente.home.createOrEditLabel"
+      >
+        Criar ou editar Cliente
+      </h2>
+
+      <div>
+        <jhi-alert-error></jhi-alert-error>
+
+        <div class="row mb-3" *ngIf="editForm.controls.id.value !== null">
+          <label class="form-label" jhiTranslate="global.field.id" for="field_id">ID</label>
+          <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="clientetagdevsapplicationApp.cliente.name" for="field_name">Name</label>
+          <input type="text" class="form-control" name="name" id="field_name" data-cy="name" formControlName="name" />
+          <div *ngIf="editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get('name')!.touched)">
+            <small class="form-text text-danger" *ngIf="editForm.get('name')?.errors?.required" jhiTranslate="entity.validation.required">
+              O campo é obrigatório.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="clientetagdevsapplicationApp.cliente.foto" for="field_foto">Foto</label>
+          <div>
+            <img
+              [src]="'data:' + editForm.get('fotoContentType')!.value + ';base64,' + editForm.get('foto')!.value"
+              style="max-height: 100px"
+              *ngIf="editForm.get('foto')!.value"
+              alt="cliente image"
+            />
+            <div *ngIf="editForm.get('foto')!.value" class="form-text text-danger clearfix">
+              <span class="pull-start">{{ editForm.get('fotoContentType')!.value }}, {{ byteSize(editForm.get('foto')!.value!) }}</span>
+              <button
+                type="button"
+                (click)="clearInputImage('foto', 'fotoContentType', 'file_foto')"
+                class="btn btn-secondary btn-xs pull-end"
+              >
+                <fa-icon icon="times"></fa-icon>
+              </button>
+            </div>
+            <input
+              type="file"
+              id="file_foto"
+              data-cy="foto"
+              (change)="setFileData($event, 'foto', true)"
+              accept="image/*"
+              jhiTranslate="entity.action.addimage"
+            />
+          </div>
+          <input type="hidden" class="form-control" name="foto" id="field_foto" data-cy="foto" formControlName="foto" />
+          <input type="hidden" class="form-control" name="fotoContentType" id="field_fotoContentType" formControlName="fotoContentType" />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="clientetagdevsapplicationApp.cliente.dataNascimento" for="field_dataNascimento"
+            >Data Nascimento</label
+          >
+          <div class="input-group">
+            <input
+              id="field_dataNascimento"
+              data-cy="dataNascimento"
+              type="text"
+              class="form-control"
+              name="dataNascimento"
+              ngbDatepicker
+              #dataNascimentoDp="ngbDatepicker"
+              formControlName="dataNascimento"
+            />
+            <button type="button" class="btn btn-secondary" (click)="dataNascimentoDp.toggle()">
+              <fa-icon icon="calendar-alt"></fa-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label
+            class="form-label"
+            jhiTranslate="clientetagdevsapplicationApp.cliente.possuiBeneficioAtivo"
+            for="field_possuiBeneficioAtivo"
+            >Possui Beneficio Ativo</label
+          >
+          <input
+            type="checkbox"
+            class="form-check"
+            name="possuiBeneficioAtivo"
+            id="field_possuiBeneficioAtivo"
+            data-cy="possuiBeneficioAtivo"
+            formControlName="possuiBeneficioAtivo"
+          />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="clientetagdevsapplicationApp.cliente.rendaBruta" for="field_rendaBruta"
+            >Renda Bruta</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            name="rendaBruta"
+            id="field_rendaBruta"
+            data-cy="rendaBruta"
+            formControlName="rendaBruta"
+          />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="clientetagdevsapplicationApp.cliente.responsavelLegal" for="field_responsavelLegal"
+            >Responsavel Legal</label
+          >
+          <select
+            class="form-control"
+            id="field_responsavelLegal"
+            data-cy="responsavelLegal"
+            name="responsavelLegal"
+            formControlName="responsavelLegal"
+            [compareWith]="compareResponsavelLegal"
+          >
+            <option [ngValue]="null"></option>
+            <option [ngValue]="responsavelLegalOption" *ngFor="let responsavelLegalOption of responsavelLegalsSharedCollection">
+              {{ responsavelLegalOption.nome }}
+            </option>
+          </select>
+        </div>
+
+        <div class="row mb-3">
+          <label jhiTranslate="clientetagdevsapplicationApp.cliente.tags" for="field_tags">Tags</label>
+          <select
+            class="form-control"
+            id="field_tags"
+            data-cy="tags"
+            multiple
+            name="tags"
+            formControlName="tags"
+            [compareWith]="compareTag"
+          >
+            <option [ngValue]="tagOption" *ngFor="let tagOption of tagsSharedCollection">{{ tagOption.nome }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancelar</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Salvar</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
